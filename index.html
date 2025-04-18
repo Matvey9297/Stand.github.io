@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Проекты с файлами</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    *{
+      margin: 0px;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .project {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+    }
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .files-list {
+      margin-top: 10px;
+    }
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    button {
+      cursor: pointer;
+    }
+    input[type="text"] {
+      padding: 5px;
+      font-size: 16px;
+    }
+    label {
+      font-weight: bold;
+    }
+    .flex-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .menu {
+      display: flex;
+      justify-content: center;
+      font-size: 20px; 
+      gap: 20px;
+      color: black;
+      background: brown;
+      height: 40px;
+      width: 970px;
+    }
+    
+    a{
+      text-decoration: none;
+    }
+
+    .text {
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+
+    <div class="menu">
+      <a class="text " href="index.html">Проэкты</a>
+      <a class="text " href="registron.html">Регистрация</a>
+    </div>
+
+<h1>Управление проектами</h1>
+
+<section id="create-project-section">
+  <h2>Создать новый проект</h2>
+  <input type="text" id="new-project-name" placeholder="Название проекта" />
+  <button id="create-project-btn">Создать проект</button>
+</section>
+
+<section id="search-section" style="margin-top:30px;">
+  <h2>Поиск проектов</h2>
+  <input type="text" id="search-input" placeholder="Введите название для поиска..." />
+</section>
+
+<section id="projects-list-section" style="margin-top:30px;">
+  <h2>Список проектов</h2>
+  <div id="projects-list"></div>
+</section>
+
+<!-- Подключаем JSZip из CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.0/jszip.min.js"></script>
+
+<script>
+(() => {
+  // Структура данных для хранения проектов
+  // Каждый проект {id, name, files:[{name, content (ArrayBuffer)}]}
+  
+  let projects = [];
+
+  // Элементы DOM
+  const newProjectNameInput = document.getElementById('new-project-name');
+  const createProjectBtn = document.getElementById('create-project-btn');
+  
+  const searchInput = document.getElementById('search-input');
+  
+  const projectsListDiv = document.getElementById('projects-list');
+
+  
+  // Создание проекта
+  createProjectBtn.addEventListener('click', () => {
+    const name = newProjectNameInput.value.trim();
+    if (!name) {
+      alert('Введите название проекта');
+      return;
+    }
+    
+    if (projects.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+      alert('Проект с таким названием уже существует');
+      return;
+    }
+
+    const newProject = {
+      id: Date.now().toString(),
+      name,
+      files: []
+    };
+    
+    projects.push(newProject);
+    
+    newProjectNameInput.value = '';
+    
+    renderProjects();
+    
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+// Функция рендера списка проектов с фильтром по поиску
+function renderProjects() {
+  
+const filterText = searchInput.value.trim().toLowerCase();
+
+projectsListDiv.innerHTML = '';
+
+const filteredProjects = projects.filter(p => p.name.toLowerCase().includes(filterText));
+
+if(filteredProjects.length ===0){
+projectsListDiv.innerHTML = '<p>Проекты не найдены.</p>';
+return;}
+filteredProjects.forEach(project => {
+
+const projectDiv = document.createElement('div');
+projectDiv.className = 'project';
+
+const headerDiv = document.createElement('div');
+headerDiv.className = 'project-header';
+
+const titleH3 = document.createElement('h3');
+titleH3.textContent = project.name;
+
+headerDiv.appendChild(titleH3);
+
+const downloadBtn = document.createElement('button');
+downloadBtn.textContent = 'Скачать проект';
+downloadBtn.addEventListener('click', () => downloadProject(project));
+headerDiv.appendChild(downloadBtn);
+
+projectDiv.appendChild(headerDiv);
+
+// Добавляем список файлов
+const filesListDiv = document.createElement('div');
+filesListDiv.className = 'files-list';
+
+if(project.files.length ===0){
+filesListDiv.innerHTML='<p>Файлы не добавлены.</p>';
+}else{
+project.files.forEach((file, idx) => {
+
+const fileItemDiv=document.createElement('div');
+fileItemDiv.className='file-item';
+
+const fileNameSpan=document.createElement('span');
+fileNameSpan.textContent=file.name;
+
+const removeFileBtn=document.createElement('button');
+removeFileBtn.textContent='Удалить';
+removeFileBtn.addEventListener('click', () => {
+if(confirm(`Удалить файл "${file.name}"?`)){
+project.files.splice(idx,1);
+renderProjects();
+}
+});
+
+fileItemDiv.appendChild(fileNameSpan);
+fileItemDiv.appendChild(removeFileBtn);
+
+filesListDiv.appendChild(fileItemDiv);
+});
+}
+
+projectDiv.appendChild(filesListDiv);
+
+// Добавляем форму для добавления файлов
+
+const addFileLabel=document.createElement('label');
+addFileLabel.textContent='Добавить файлы в проект';
+addFileLabel.htmlFor=`add-file-input-${project.id}`;
+addFileLabel.style.display='block';
+addFileLabel.style.marginTop='10px';
+
+const addFileInput=document.createElement('input');
+addFileInput.type='file';
+addFileInput.id=`add-file-input-${project.id}`;
+addFileInput.multiple=true;
+
+addFileInput.addEventListener('change', async (e) => {
+
+const files=e.target.files;
+
+for(let file of files){
+
+// Читаем содержимое файла как ArrayBuffer
+
+try{
+
+const arrayBuffer=await file.arrayBuffer();
+
+project.files.push({name:file.name, content:arrayBuffer});
+
+}catch(err){
+
+alert(`Ошибка при чтении файла ${file.name}`);
+
+}
+
+}
+
+renderProjects();
+
+e.target.value=''; // сброс input
+
+});
+
+projectDiv.appendChild(addFileLabel);
+projectDiv.appendChild(addFileInput);
+
+projectsListDiv.appendChild(projectDiv);
+
+});
+
+}
+
+// Функция скачивания проекта в ZIP
+
+async function downloadProject(project){
+
+if(project.files.length===0){
+
+alert('В проекте нет файлов для скачивания');
+
+return;
+
+}
+
+const zip=new JSZip();
+
+for(let file of project.files){
+
+zip.file(file.name,file.content);
+
+}
+
+try{
+
+const content=await zip.generateAsync({type:'blob'});
+
+const a=document.createElement('a');
+
+a.href=URL.createObjectURL(content);
+
+a.download=`${project.name}.zip`;
+
+document.body.appendChild(a);
+
+a.click();
+
+a.remove();
+
+}catch(err){
+
+alert('Ошибка при создании архива');
+
+}
+
+}
+
+// Обработчик поиска
+
+searchInput.addEventListener('input', () => {
+
+renderProjects();
+
+});
+
+// Инициализация
+
+renderProjects();
+
+
+})();
+</script>
+
+</body>
+</html>
